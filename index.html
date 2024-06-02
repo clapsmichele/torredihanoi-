@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>La Torre di Hanoi</title>
+    <!-- Collegamento al foglio di stile di Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Icona della pagina -->
+    <link rel="icon" type="image/png" href="torre.png">
+    <!-- Stile CSS personalizzato -->
+    <style>
+        .disk {
+            height: 30px;
+            background-color: red;
+        }
+        body {
+            background-image: url('Sfondo1.png');
+            background-size: cover;
+            color: red;
+            text-align: justify;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <!-- Intestazione -->
+    <center><h1>La Torre di Hanoi</h1></center>
+</header>
+<main>
+    <!-- Corpo -->
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <!-- Descrizione del gioco -->
+                <p>La Torre di Hanoi è un gioco matematico. Il gioco si svolge su una piattaforma con tre pali. Nel primo palo sono impilati dei dischi di dimensioni diverse in ordine crescente, dalla più grande in basso alla più piccola in alto. Con ogni mossa si può spostare un solo disco potendolo sfilare solo se non ci sono elementi sopra di esso e lo si può impilare su un palo solo se sotto di esso non ci sono elementi più piccoli.</p>
+            </div>    
+            <!-- Pali della torre -->
+            <div id="palo1" class="col-4">
+            </div>
+            <div id="palo2" class="col-4">
+            </div>
+            <div id="palo3" class="col-4">
+            </div>
+        </div>
+        <!-- Pulsanti per prendere i dischi dai pali -->
+        <div class="row" style="margin-top:20px;text-align:center;">
+            <div class="col-4">
+                <button id="btn1" onclick="click1()" class="btn btn-danger">Prendi</button>
+            </div>
+            <div class="col-4">
+                <button id="btn2" onclick="click2()" class="btn btn-danger">Prendi</button>
+            </div>
+            <div class="col-4">
+                <button id="btn3" onclick="click3()" class="btn btn-danger">Prendi</button>
+            </div>
+        </div>
+        <!-- Pulsanti per reset e aggiunta pezzi -->
+        <div class="row" style="margin-top:20px;text-align:center;">
+            <!-- Bottone per il reset e aggiungi pezzi -->
+            <div class="col-6">
+                <button id="resetBtn" onclick="resetTorre()" class="btn btn-danger">Resetta Torre</button>
+            </div>
+            <div class="col-6">
+                <button id="addPezziBtn" onclick="aggiungiPezzo()" class="btn btn-danger">Aggiungi Pezzi</button>
+            </div>
+        </div>
+    </div>
+</main>
+<footer>
+    <!-- Pedice -->
+    <center><p class="footer">&copy; Michele Antonio Claps</p></center>
+    <!-- Collegamento allo script di Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</footer>
+<!-- Script JavaScript -->
+<script>
+    // Definizione dei tre pali e della mano
+    var palo1 = [1,2,3,4];
+    var palo2 = [];
+    var palo3 = [];
+    var hand = 0;
+
+    // Variabile per tenere traccia del numero di pezzi attuali
+    var numeroPezzi = 4;
+    // Numero massimo di pezzi
+    var maxPezzi = 8;
+    
+    // Funzione per disegnare un disco
+    function drawDisk(dimension){
+        let color = "#48d1cc";
+        if(dimension == 1){
+            color = "#8b008b"; 
+        } else if(dimension == 2){
+            color = "#800000 "; 
+        } else if(dimension == 3){
+            color = "#dc143c ";
+        } else if(dimension == 4){
+            color = '#56ffaa';
+        } else if(dimension == 5){
+            color = '#122abb';
+        } else if(dimension == 6){
+            color = '#34cd56';
+        } else if(dimension == 7){
+            color = '#78efff';
+        } else if(dimension == 8){
+            color = '#ccccef';
+        }
+        return "<div class='disk' style='background-color: "+color+";width:" + dimension*10 + "%;'></div>";
+    }
+    
+    // Funzione per ottenere il palo corrispondente al numero dato
+    function getPalo(num){
+        if(num == 1) {
+            return palo1;
+        } else if(num == 2) {
+            return palo2;
+        } else {
+            return palo3;
+        }
+    }
+    
+    // Funzione per disegnare un palo
+    function drawPalo(num){
+        let divPalo = document.getElementById("palo"+num);
+        let palo = getPalo(num);
+        divPalo.innerHTML = "";
+        for(i=0;i<palo.length;i++){
+            divPalo.innerHTML+=drawDisk(palo[i]);
+        }
+    }
+    
+    // Funzione per disegnare tutti i pali
+    function drawAll(){
+        drawPalo(1);
+        drawPalo(2);
+        drawPalo(3);
+        checkButtons();
+    }
+    
+    // Funzione per controllare lo stato dei pulsanti
+    function checkButtons(){
+        checkButton(1);
+        checkButton(2);
+        checkButton(3);                
+    }
+    
+    // Funzione per controllare lo stato di un pulsante
+    function checkButton(n){
+        let btn = document.getElementById("btn"+n);
+        let palo = getPalo(n);    
+        if(hand == 0){
+            //Mano vuota                        
+            btn.disabled = palo.length == 0;
+            btn.innerText = "Prendi";
+        } else {
+            //Disco in mano
+            btn.disabled=palo.length > 0 && hand > palo[0];
+            btn.innerText = "Inserisci";                            
+        }
+        // Imposta il colore del pulsante come rosso
+        btn.classList.remove("btn-primary");
+        btn.classList.add("btn-danger");
+
+        
+        var button = document.getElementById("addPezziBtn");
+        button.disabled = !(numeroPezzi < maxPezzi && palo1.length == numeroPezzi);
+    }
+    
+    // Funzione per gestire il click sul primo palo
+    function click1() {
+        clickHandler(1);
+    }
+    
+    // Funzione per gestire il click sul secondo palo
+    function click2() {
+        clickHandler(2);
+    }
+    
+    // Funzione per gestire il click sul terzo palo
+    function click3() {
+        clickHandler(3);
+    }
+    
+    // Funzione per gestire il click su un palo
+    function clickHandler(paloNum) {
+        // Ottiene l'array che rappresenta il palo selezionato
+        let palo = getPalo(paloNum);
+
+        // Se non c'è alcun disco nella mano
+        if (hand == 0) {
+            // Se il palo selezionato ha almeno un disco
+            if (palo.length > 0) {
+                hand = palo.shift();  // Prende il disco più in alto
+            }
+        } else {  // Se c'è un disco nella mano
+            // Se il palo selezionato è vuoto o il disco nella mano è più piccolo del disco più in alto nel palo
+            if (palo.length === 0 || hand < palo[0]) {
+                palo.unshift(hand);  // Inserisce il disco nella mano in cima al palo
+                hand = 0;  // Resetta la mano (nessun disco in mano)
+            }
+        }
+
+        // Aggiorna la visualizzazione dei pali dopo il movimento
+        drawAll();
+    }
+    
+    // Funzione per il reset della torre
+    function resetTorre() {
+        palo1 = [1,2,3,4];
+        palo2 = [];
+        palo3 = [];
+        hand = 0;
+        // Aggiornamento della visualizzazione della torre dopo il reset
+        drawAll();
+    }
+
+    // Funzione per aggiungere un pezzo alla torre
+    function aggiungiPezzo() {
+        if (numeroPezzi < maxPezzi && palo1.length == numeroPezzi) {
+            getPalo(1).push(++numeroPezzi);
+            drawAll();
+        }
+    }
+
+    drawAll();
+</script>
+</body>
+</html>
